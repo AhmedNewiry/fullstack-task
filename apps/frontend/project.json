@@ -1,9 +1,44 @@
 {
   "name": "frontend",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "files": ["apps/frontend"],
   "sourceRoot": "apps/frontend",
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project frontend --web",
-  "targets": {}
+  "targets": {
+    "serve": {
+      "executor": "@nx/next:server",
+      "options": {
+        "buildTarget": "frontend:build",
+        "dev": true
+      }
+    },
+    "build": {
+      "executor": "@nx/next:build",
+      "options": {
+        "outputPath": "dist/apps/frontend",
+        "root": "apps/frontend"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "apps/frontend/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "e2e": {
+      "executor": "@nx/playwright:e2e",
+      "options": {
+        "root": "apps/frontend"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/frontend/**/*.ts", "apps/frontend/**/*.tsx"]
+      }
+    }
+  }
 }
