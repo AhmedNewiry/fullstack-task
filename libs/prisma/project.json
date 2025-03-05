@@ -11,6 +11,12 @@
       "options": {
         "command": "npx prisma db push --schema=libs/prisma/prisma/schema.prisma"
       }
+    },
+    "generate-orm": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma generate --schema=libs/prisma/prisma/schema.prisma"
+      }
     }
 
   }
