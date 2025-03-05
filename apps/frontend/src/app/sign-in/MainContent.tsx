@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import FormInput from '../components/FormInput';
+import { useState } from 'react';
 
 interface SigninFormInputs {
   email: string;
@@ -12,6 +13,7 @@ interface SigninFormInputs {
 
 export default function Signin() {
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const {
     register,
@@ -20,15 +22,36 @@ export default function Signin() {
   } = useForm<SigninFormInputs>();
 
   const onSubmit = async (data: SigninFormInputs) => {
-  
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/signin`,
+        data,
+        { withCredentials: true }
+      );
+      if (response.status === 200 || response.status === 201) {
+        router.push('/?refresh=true'); 
+   
+        setTimeout(() => router.replace('/'), 100);
+      }
+      
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage('An error occurred. Please try again.');
+      }
+    }
   };
 
   return (
-    <div className="flex h-[calc(100vh-96px)] items-center justify-center bg-gray-100">
+    <div className="flex h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 space-y-6">
         <h1 className="text-2xl font-bold text-center text-gray-800">
           Sign In
         </h1>
+        {errorMessage && (
+          <p className="text-red-500 text-center">{errorMessage}</p>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
@@ -50,7 +73,7 @@ export default function Signin() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
+            className="w-full bg-[#500878] hover:bg-[#420663] text-white font-bold py-4 px-8 rounded-full transition duration-300"
           >
             Sign In
           </button>
