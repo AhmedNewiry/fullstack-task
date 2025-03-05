@@ -152,53 +152,116 @@ NEXT_PUBLIC_API_URL="http://localhost:3000"
 
 ### Authentication Endpoints
 
-- **Sign Up:**  
-  `POST /auth/signup`
-  - **Request Body:**
-    ```json
-    {
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "password": "Password@123"
+### 1- Sign Up
+**POST `/auth/signup`**
+
+#### Description
+Creates a new user.
+
+#### Request Body
+```json
+{
+    "email": "user@example.com",
+    "password": "Password@123"
+}
+```
+
+#### Response
+```json
+{
+    "id": "generated-user-id",
+    "email": "user@example.com",
+    "createdAt": "2025-03-05T12:34:56Z"
+}
+```
+
+---
+
+### 2- Sign In
+**POST `/auth/signin`**
+
+#### Description
+Authenticates the user and issues a secure cookie containing a JWT access token.
+
+#### Request Body
+```json
+{
+    "email": "user@example.com",
+    "password": "Password@123"
+}
+```
+
+#### Response
+```json
+{
+    "message": "Signin successful"
+}
+```
+
+#### Cookie Set
+- `access_token`: JWT token (HttpOnly, Secure, SameSite: Strict, Max-Age: 1 hour)
+
+---
+
+### 3- Logout
+**POST `/auth/logout`**
+
+#### Description
+Clears the `access_token` cookie.
+
+#### Response
+```json
+{
+    "message": "Logged out successfully."
+}
+```
+
+---
+
+### 4- Get Logged-in User (Profile) - The protected endpoint
+**GET `/auth/me`**
+
+#### Description
+Returns the logged-in user's profile.
+
+#### Headers
+```http
+Cookie: access_token=<valid-jwt-token>
+```
+
+#### Response
+```json
+{
+    "message": "User is logged in",
+    "user": {
+        "id": "user-id-123",
+        "email": "user@example.com"
     }
-    ```
-  - **Response:**
-    ```json
-    { "message": "User created successfully." }
-    ```
+}
+```
 
-- **Sign In:**  
-  `POST /auth/signin`
-  - **Request Body:**
-    ```json
-    {
-      "email": "john.doe@example.com",
-      "password": "Password@123"
-    }
-    ```
-  - **Response:**  
-    Sets an HTTP‑only cookie named `access_token` and returns:
-    ```json
-    { "message": "Signin successful" }
-    ```
+#### Security
+- Requires valid `access_token` cookie.
+- Protected by `JwtAuthGuard`.
 
-- **Logout:**  
-  `POST /auth/logout`
-  - **Response:**
-    ```json
-    { "message": "Logged out successfully." }
-    ```
+---
 
-### Protected Endpoint
+### Public Endpoint
 
-- **Welcome Message:**  
-  `GET /app/welcome`
-  - **Response:**
-    ```json
-    { "message": "Welcome to the application." }
-    ```
-  - **Note:** Requires a valid HTTP‑only JWT cookie.
+### 5- Welcome Message
+**GET `/app/welcome`**
 
+#### Description
+Publicly accessible welcome message.
+
+#### Response
+```json
+{
+    "message": "Welcome to the application."
+}
+```
+
+---
 ## Swagger Documentation
 
 Swagger UI is available at:
