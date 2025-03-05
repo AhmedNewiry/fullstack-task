@@ -1,4 +1,4 @@
-```markdown
+
 # NestJS Auth API & Next.js Client in NX Monorepo
 
 This repository implements a secure authentication system using a NestJS backend integrated with MongoDB via Prisma and a Next.js frontend for the client interface. The application uses JWTs stored in HTTP‑only cookies for secure session management and includes endpoints for signing up, signing in, logging out, and accessing protected routes.
