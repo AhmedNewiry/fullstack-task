@@ -140,7 +140,7 @@ NEXT_PUBLIC_API_URL="http://localhost:3000"
 
 1. **Start the Frontend**
 
-   If the Next.js client is part of the monorepo, navigate to its directory (if applicable) and run:
+   In another terminal, you can start the frontend from the root of the monorepo using the following:
 
    ```bash
    nx serve frontend
