@@ -1,9 +1,9 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { Controller, Get} from '@nestjs/common';
+
 
 @Controller('app')
 export class AppController {
-  @UseGuards(JwtAuthGuard)
+
   @Get('welcome')
   getWelcome() {
     return { message: 'Welcome to the application.' };
