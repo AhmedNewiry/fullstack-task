@@ -19,7 +19,7 @@ import { ConfigModule } from '@nestjs/config';
     }),
     ConfigModule.forRoot({
         isGlobal: true,
-        envFilePath:'.env'
+        envFilePath:'../../../.env',
     }),
     AuthModule,
     PrismaModule,
