@@ -1,82 +1,287 @@
-# FullstackTask
+```markdown
+# NestJS Auth API & Next.js Client in NX Monorepo
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+This repository implements a secure authentication system using a NestJS backend integrated with MongoDB via Prisma and a Next.js frontend for the client interface. The application uses JWTs stored in HTTP‑only cookies for secure session management and includes endpoints for signing up, signing in, logging out, and accessing protected routes.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+This project is managed within an NX monorepo.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/node?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Table of Contents
 
-## Finish your CI setup
+- [Overview](#overview)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Swagger Documentation](#swagger-documentation)
+- [Prisma Configuration](#prisma-configuration)
+- [Frontend Details](#frontend-details)
+- [Additional Configuration](#additional-configuration)
+- [Contributing](#contributing)
+- [License](#license)
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/agJ1RlLeEu)
+## Overview
 
+This project consists of two parts:
 
-## Run tasks
+1. **Backend**: A NestJS API using Prisma to connect to a MongoDB database. It provides:
+   - User sign-up and sign-in endpoints.
+   - JWT-based authentication with tokens stored as HTTP‑only cookies.
+   - A protected endpoint (`/app/welcome`) that returns a welcome message.
+   - Global validation, logging, rate throttling, CORS configuration, and Swagger integration for API documentation.
 
-To run the dev server for your app, use:
+2. **Frontend**: A Next.js application that includes:
+   - Sign-up and sign-in forms.
+   - A welcome page that fetches protected data from the backend.
+   - A responsive Navbar that reflects the user’s authentication status.
 
-```sh
-npx nx serve backend
+## Features
+
+- **User Authentication**: Secure sign-up and sign-in endpoints.
+- **HTTP‑Only Cookies**: JWT tokens are stored in secure, HTTP‑only cookies.
+- **Protected Routes**: Routes accessible only to authenticated users.
+- **Global Validation & Security**: Validation pipes, CORS, and throttling.
+- **Swagger API Documentation**: Interactive documentation with detailed examples.
+- **NX Monorepo Setup**: Organized project structure with shared libraries.
+- **Prisma Integration**: Database ORM with defined NX targets for migrations and client generation.
+- **Next.js Frontend**: A modern React-based UI with secure authentication flow.
+
+## Prerequisites
+
+- Node.js (v14 or higher recommended)
+- npm (or yarn)
+- A MongoDB instance (local or Atlas)
+- [NX CLI](https://nx.dev/latest/angular/getting-started/intro) (optional, for monorepo management)
+- [NestJS CLI](https://docs.nestjs.com/cli/overview) (optional, for development)
+
+## Installation
+
+1. **Clone the Repository**
+
+   ```bash
+   git clone https://github.com/AhmedNewiry/fullstack-task.git
+   cd fullstack-task
+   ```
+
+2. **Install Dependencies**
+
+   In the root of the NX monorepo, install dependencies using:
+
+   ```bash
+   npm i --legacy-peer-deps
+   ```
+
+   This flag helps resolve any peer dependency conflicts common in a monorepo setup.
+
+## Environment Variables
+
+A sample `.env.example` file is provided in the repository root. Copy it to create your own `.env` file:
+
+```bash
+cp .env.example .env
 ```
 
-To create a production bundle:
+Then, update the values in your new `.env` and you can just run the app using these env variables.
 
-```sh
-npx nx build backend
+
+Another option is to create a `.env` file in the root of the repository with the following variables:
+
+```dotenv
+# MongoDB connection string (MongoDB Atlas URI or local instance)
+DATABASE_URL="mongodb+srv://<username>:<password>@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority"
+
+# JWT secret key
+JWT_SECRET="your_jwt_secret"
+
+# Application port
+PORT=3000
+
+# Comma-separated list of allowed origins (e.g., your frontend URL)
+ALLOWED_ORIGINS="http://localhost:3000,http://localhost:4200"
+
+# For the Next.js client, set the API URL:
+NEXT_PUBLIC_API_URL="http://localhost:3000"
 ```
 
-To see all available targets to run for a project, run:
+## Running the Application
 
-```sh
-npx nx show project backend
+### Backend
+
+1. **Generate Prisma Client**
+
+   Run the following NX target to generate the Prisma client:
+
+   ```bash
+   nx run prisma:generate-orm
+   ```
+
+2. **Push Prisma Schema Changes**
+
+   Use the following NX target to push your Prisma schema to the database (this does not use migrations):
+
+   ```bash
+   nx run prisma:migrate-orm
+   ```
+
+3. **Start the Backend Server**
+
+   Start the NestJS backend server (from the root of the monorepo):
+
+   ```bash
+   nx serve backend
+   ```
+
+   The server will run on the port defined in your `.env` (default is 3000).  
+   Swagger documentation is available at:  
+   `http://localhost:3000/api-docs`
+
+### Frontend
+
+1. **Start the Frontend**
+
+   If the Next.js client is part of the monorepo, navigate to its directory (if applicable) and run:
+
+   ```bash
+   nx serve frontend
+   ```
+
+   Ensure that the `NEXT_PUBLIC_API_URL` environment variable is set appropriately (e.g., `http://localhost:3000`).
+
+## API Endpoints
+
+### Authentication Endpoints
+
+- **Sign Up:**  
+  `POST /auth/signup`
+  - **Request Body:**
+    ```json
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "Password@123"
+    }
+    ```
+  - **Response:**
+    ```json
+    { "message": "User created successfully." }
+    ```
+
+- **Sign In:**  
+  `POST /auth/signin`
+  - **Request Body:**
+    ```json
+    {
+      "email": "john.doe@example.com",
+      "password": "Password@123"
+    }
+    ```
+  - **Response:**  
+    Sets an HTTP‑only cookie named `access_token` and returns:
+    ```json
+    { "message": "Signin successful" }
+    ```
+
+- **Logout:**  
+  `POST /auth/logout`
+  - **Response:**
+    ```json
+    { "message": "Logged out successfully." }
+    ```
+
+### Protected Endpoint
+
+- **Welcome Message:**  
+  `GET /app/welcome`
+  - **Response:**
+    ```json
+    { "message": "Welcome to the application." }
+    ```
+  - **Note:** Requires a valid HTTP‑only JWT cookie.
+
+## Swagger Documentation
+
+Swagger UI is available at:
+
+```
+http://localhost:3000/api-docs
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### Testing Cookie‑Based Authentication in Swagger
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. **Sign In First:**  
+   Use the `/auth/signin` endpoint in Swagger (or via another client like Postman) to log in. This will set the HTTP‑only cookie (`access_token`) in your browser.
 
-## Add new projects
+2. **Access Protected Routes:**  
+   After signing in, your browser automatically includes the cookie when making requests to protected endpoints.  
+   **Note:** HTTP‑only cookies are not visible or editable in Swagger UI, so for a more hands‑on testing experience, consider using Postman or similar tools.
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+### Security Scheme
 
-Use the plugin's generator to create new projects.
+The Swagger configuration has been adjusted to document cookie‑based authentication. A security scheme (`cookieAuth`) has been defined so that endpoints requiring authentication show the proper configuration.
 
-To generate a new application, use:
+## Prisma Configuration
 
-```sh
-npx nx g @nx/node:app demo
+Prisma is set up as a library under `libs/prisma/` in this NX monorepo. The project includes the following NX targets:
+
+- **migrate-orm:**  
+  Executes the command:
+  ```bash
+  npx prisma db push --schema=libs/prisma/prisma/schema.prisma
+  ```
+  This command pushes your schema changes to the database without using migrations.
+
+- **generate-orm:**  
+  Executes the command:
+  ```bash
+  npx prisma generate --schema=libs/prisma/prisma/schema.prisma
+  ```
+  This command generates the Prisma client based on your schema.
+
+You can run these targets using:
+
+```bash
+# Push schema changes to the database
+nx run prisma:migrate-orm
+
+# Generate the Prisma client
+nx run prisma:generate-orm
 ```
 
-To generate a new library, use:
+## Frontend Details
 
-```sh
-npx nx g @nx/node:lib mylib
-```
+- **Sign In/Sign Up Pages:**  
+  Implemented using `react-hook-form` for form validation. API calls are made using Axios with `withCredentials: true` to ensure HTTP‑only cookies are included.
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+- **Navbar:**  
+  Displays navigation options based on the user’s authentication status. The authentication status is determined by checking with a backend endpoint (e.g., `/auth/me`) which is the required protected endpoint rather than using local storage.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Welcome Page:**  
+  Fetches and displays a welcome message from  `/app/welcome` endpoint.
 
+## Additional Configuration
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Global Validation:**  
+  Validation pipes are applied globally to enforce DTO validation.
 
-## Install Nx Console
+- **CORS:**  
+  Configured to allow origins specified in the `ALLOWED_ORIGINS` environment variable. Credentials are enabled so cookies are sent with cross-origin requests.
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+- **Cookie Parser:**  
+  Middleware is applied to parse HTTP‑only cookies for JWT extraction in the authentication process.
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Swagger Customization:**  
+  Swagger documentation includes details on cookie‑based authentication and provides example values for request bodies.
 
-## Useful links
+## Contributing
 
-Learn more:
+Contributions are welcome! Please fork this repository and submit pull requests for any improvements or bug fixes.
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/node?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## License
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This project is licensed under the [MIT License](LICENSE).
+
+## Contact
+
+For any questions or issues, please contact [ahmedabdalfttah@outlook.com](mailto:your-email@example.com).
+
