@@ -6,6 +6,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
+import { WinstonModule } from 'nest-winston';
+import winstonConfig from './config/winstonConfig';
 
 @Module({
   imports: [
@@ -17,6 +19,7 @@ import { ConfigModule } from '@nestjs/config';
         },
       ],
     }),
+    WinstonModule.forRoot(winstonConfig),
     ConfigModule.forRoot({
         isGlobal: true,
         envFilePath:'../../../.env',
